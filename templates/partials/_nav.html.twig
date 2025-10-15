@@ -1,0 +1,26 @@
+{% if is_granted('IS_AUTHENTICATED_REMEMBERED') %}
+<nav class="navbar navbar-expand-lg navbar-light bg-light mb-4">
+  <div class="container">
+    <a class="navbar-brand" href="{{ path('app_home') }}">MiniRéseau</a>
+
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNavbar" aria-controls="mainNavbar" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+
+    <div class="collapse navbar-collapse" id="mainNavbar">
+      <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+        <li class="nav-item"><a class="nav-link" href="{{ path('app_home') }}">Accueil</a></li>
+      </ul>
+
+      <ul class="navbar-nav ms-auto">
+        <li class="nav-item me-2 align-self-center">
+          <span class="text-muted small">{{ app.user.username ?? app.user.email }}</span>
+        </li>
+        <li class="nav-item">
+          <a class="btn btn-outline-secondary btn-sm" href="{{ path('app_logout') }}">Se déconnecter</a>
+        </li>
+      </ul>
+    </div>
+  </div>
+</nav>
+{% endif %}
