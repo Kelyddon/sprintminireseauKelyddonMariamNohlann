@@ -4,7 +4,7 @@
 
 {% block body %}
 <div class="container mt-4" style="max-width:720px;">
-    <div class="card">
+    <div class="card shadow-sm">
         <div class="card-body">
             <div class="d-flex justify-content-between mb-2">
                 <strong>
@@ -17,25 +17,49 @@
                     {% endif %}
                 </small>
             </div>
+
             <p class="mb-0">{{ message.content }}</p>
 
             {% if message.image is defined and message.image %}
                 <hr>
-                <img src="{{ asset(message.image) }}" class="img-fluid" alt="image du message">
+                <div class="text-center">
+                    <img src="{{ asset('uploads/messages/' ~ message.image) }}"
+                         alt="Image du message"
+                         class="img-fluid rounded shadow-sm mt-2"
+                         style="max-height: 400px;">
+                </div>
             {% endif %}
         </div>
     </div>
 
     <div class="mt-3">
         <a href="{{ path('app_home') }}" class="btn btn-link">← Retour</a>
-    </div>
-</div>
 
-<div class="mt-4">
+        {# Bouton Modifier (uniquement l’auteur du message) #}
+        {% if app.user and app.user == message.author %}
+            <a href="{{ path('app_message_edit', { id: message.id }) }}" class="btn btn-warning btn-sm ms-2">
+                Modifier
+            </a>
+        {% endif %}
+
+        {# Bouton Supprimer (auteur ou admin) #}
+        {% if app.user and (is_granted('ROLE_ADMIN') or app.user == message.author) %}
+            <form method="post"
+                  action="{{ path('app_message_delete', { id: message.id }) }}"
+                  class="d-inline"
+                  onsubmit="return confirm('Supprimer ce message ?');">
+                <button class="btn btn-danger btn-sm">Supprimer</button>
+            </form>
+        {% endif %}
+    </div>
+
+    <hr class="my-4">
+
+    <div>
         <h5 class="mb-3">Commentaires ({{ message.comments|length }})</h5>
 
         {% for comment in message.comments %}
-            <div class="card mb-2">
+            <div class="card mb-2 shadow-sm">
                 <div class="card-body py-2">
                     <div class="d-flex justify-content-between">
                         <div>
@@ -61,6 +85,7 @@
                             {% endif %}
                         </div>
                     </div>
+
                     <div class="mt-2">
                         {{ comment.content }}
                     </div>
@@ -71,8 +96,8 @@
         {% endfor %}
     </div>
 
-    {# Formulaire d'ajout de commentaire (utilisateur connecté) #}
-    <div class="mt-3">
+    {# Formulaire d’ajout de commentaire #}
+    <div class="mt-4">
         {% if is_granted('IS_AUTHENTICATED_FULLY') %}
             <form method="post" action="{{ path('app_comment_add', { id: message.id }) }}">
                 <div class="mb-2">
@@ -86,4 +111,5 @@
             <a class="btn btn-outline-primary" href="{{ path('app_login') }}">Se connecter pour commenter</a>
         {% endif %}
     </div>
+</div>
 {% endblock %}

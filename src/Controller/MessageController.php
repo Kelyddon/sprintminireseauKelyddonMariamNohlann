@@ -25,6 +25,14 @@ class MessageController extends AbstractController
             $message->setAuthor($this->getUser());
             $message->setCreatedAt(new \DateTimeImmutable());
 
+            // ✅ Gestion de l’image uploadée
+            $imageFile = $form->get('image')->getData();
+            if ($imageFile) {
+                $newFilename = uniqid('msg_') . '.' . $imageFile->guessExtension();
+                $imageFile->move($this->getParameter('uploads_dir'), $newFilename);
+                $message->setImage($newFilename);
+            }
+
             $em->persist($message);
             $em->flush();
 
@@ -52,18 +60,32 @@ class MessageController extends AbstractController
     {
         $user = $this->getUser();
 
-        // ✅ Vérifie que l'utilisateur connecté est l'auteur
         if ($message->getAuthor() !== $user) {
             $this->addFlash('error', 'Vous ne pouvez modifier que vos propres messages.');
             return $this->redirectToRoute('app_home');
         }
 
-        // On utilise le même formulaire que pour la création
-        $form = $this->createForm(\App\Form\MessageFormType::class, $message);
+        $form = $this->createForm(MessageFormType::class, $message);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            $em->flush(); // pas besoin de persist, l'objet existe déjà
+            $imageFile = $form->get('image')->getData();
+
+            if ($imageFile) {
+                // ✅ Supprime l’ancienne image si elle existe
+                if ($message->getImage()) {
+                    $oldPath = $this->getParameter('uploads_dir') . '/' . $message->getImage();
+                    if (file_exists($oldPath)) {
+                        unlink($oldPath);
+                    }
+                }
+
+                $newFilename = uniqid('msg_') . '.' . $imageFile->guessExtension();
+                $imageFile->move($this->getParameter('uploads_dir'), $newFilename);
+                $message->setImage($newFilename);
+            }
+
+            $em->flush();
             $this->addFlash('success', 'Message modifié avec succès.');
             return $this->redirectToRoute('app_home');
         }
