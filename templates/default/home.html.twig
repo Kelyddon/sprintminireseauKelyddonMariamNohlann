@@ -1,0 +1,29 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Accueil{% endblock %}
+
+{% block body %}
+<div class="container mt-4">
+    <h1 class="mb-4">Tous les messages</h1>
+
+    {% if messages is empty %}
+        <p>Aucun message pour le moment.</p>
+    {% else %}
+        <div class="list-group">
+            {% for m in messages %}
+                <div class="list-group-item">
+                    <div class="d-flex justify-content-between">
+                        <strong>{{ m.user.username ?? m.user.email ?? 'Anonyme' }}</strong>
+                        <small class="text-muted">
+                            {{ m.createdAt ? m.createdAt|date('d/m/Y H:i') : '' }}
+                        </small>
+                    </div>
+                    <div class="mt-2">
+                        {{ m.content }}
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

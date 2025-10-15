@@ -14,8 +14,14 @@ security:
             pattern: ^/(_(profiler|wdt)|css|images|js)/
             security: false
         main:
-            lazy: true
-            provider: app_user_provider
+            form_login:
+                login_path: app_login
+                check_path: app_login
+                default_target_path: app_home
+                always_use_default_target_path: true
+            logout:
+                path: app_logout
+                target: app_login
 
             # activate different ways to authenticate
             # https://symfony.com/doc/current/security.html#the-firewall
@@ -26,8 +32,11 @@ security:
     # Easy way to control access for large sections of your site
     # Note: Only the *first* access control that matches will be used
     access_control:
-        # - { path: ^/admin, roles: ROLE_ADMIN }
-        # - { path: ^/profile, roles: ROLE_USER }
+    # Autoriser login/register et assets sans être connecté
+        - { path: ^/(login|register)$, roles: PUBLIC_ACCESS }
+        - { path: ^/(css|images|js|build|assets)/, roles: PUBLIC_ACCESS }
+    # Tout le reste nécessite d'être connecté
+        - { path: ^/.*, roles: ROLE_USER }
 
 when@test:
     security:
