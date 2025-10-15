@@ -30,4 +30,60 @@
         <a href="{{ path('app_home') }}" class="btn btn-link">← Retour</a>
     </div>
 </div>
+
+<div class="mt-4">
+        <h5 class="mb-3">Commentaires ({{ message.comments|length }})</h5>
+
+        {% for comment in message.comments %}
+            <div class="card mb-2">
+                <div class="card-body py-2">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <strong>
+                                {% set cAuthor = comment.author ?? null %}
+                                {{ cAuthor ? (cAuthor.username ?? cAuthor.email ?? 'Anonyme') : 'Anonyme' }}
+                            </strong>
+                            <span class="text-muted small">
+                                • {{ comment.createdAt ? comment.createdAt|date('d/m/Y H:i') : '' }}
+                            </span>
+                        </div>
+
+                        {# Actions: suppression (auteur du commentaire ou admin) #}
+                        <div class="d-flex align-items-start">
+                            {% if app.user and (is_granted('ROLE_ADMIN') or (comment.author and comment.author.id == app.user.id)) %}
+                                <form method="post"
+                                      action="{{ path('app_comment_delete', { id: comment.id }) }}"
+                                      onsubmit="return confirm('Supprimer ce commentaire ?');"
+                                      class="ms-2">
+                                    <input type="hidden" name="_token" value="{{ csrf_token('delete_comment_' ~ comment.id) }}">
+                                    <button class="btn btn-sm btn-outline-danger">Supprimer</button>
+                                </form>
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="mt-2">
+                        {{ comment.content }}
+                    </div>
+                </div>
+            </div>
+        {% else %}
+            <p class="text-muted">Aucun commentaire pour le moment.</p>
+        {% endfor %}
+    </div>
+
+    {# Formulaire d'ajout de commentaire (utilisateur connecté) #}
+    <div class="mt-3">
+        {% if is_granted('IS_AUTHENTICATED_FULLY') %}
+            <form method="post" action="{{ path('app_comment_add', { id: message.id }) }}">
+                <div class="mb-2">
+                    <label for="comment_content" class="form-label">Nouveau commentaire</label>
+                    <textarea id="comment_content" name="content" class="form-control" rows="3" required></textarea>
+                </div>
+                <input type="hidden" name="_token" value="{{ csrf_token('comment_add_' ~ message.id) }}">
+                <button type="submit" class="btn btn-primary">Publier</button>
+            </form>
+        {% else %}
+            <a class="btn btn-outline-primary" href="{{ path('app_login') }}">Se connecter pour commenter</a>
+        {% endif %}
+    </div>
 {% endblock %}

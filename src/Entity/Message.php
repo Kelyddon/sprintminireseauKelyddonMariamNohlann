@@ -26,12 +26,14 @@ class Message
     private ?\DateTimeImmutable $createdAt = null;
 
     #[ORM\ManyToOne(inversedBy: 'messages')]
+    #[ORM\JoinColumn(onDelete: 'CASCADE', nullable: true)]
     private ?User $author = null;
 
     /**
      * @var Collection<int, Comment>
      */
     #[ORM\OneToMany(targetEntity: Comment::class, mappedBy: 'message')]
+    #[ORM\JoinColumn(onDelete: 'CASCADE', nullable: true)]
     private Collection $comments;
 
     public function __construct()

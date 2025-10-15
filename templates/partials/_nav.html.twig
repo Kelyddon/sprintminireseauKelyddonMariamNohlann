@@ -13,6 +13,14 @@
         <li class="nav-item">
           <a class="btn btn-sm btn-primary ms-lg-2" href="{{ path('app_message_add') }}">Créer un message</a>
         </li>
+        {% if is_granted('ROLE_ADMIN') %}
+          <li class="nav-item">
+            <a class="nav-link" href="{{ path('admin_comments_index') }}">Commentaires (Admin)</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="{{ path('admin_users_index') }}">Utilisateurs (Admin)</a>
+          </li>
+        {% endif %}
       </ul>
 
       <ul class="navbar-nav ms-auto">

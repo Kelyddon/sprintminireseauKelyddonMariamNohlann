@@ -1,0 +1,63 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Administration - Commentaires{% endblock %}
+
+{% block body %}
+<div class="container mt-4">
+    <h1 class="mb-3">Tous les commentaires</h1>
+
+    {% if comments is empty %}
+        <p class="text-muted">Aucun commentaire.</p>
+    {% else %}
+        <div class="table-responsive">
+            <table class="table align-middle">
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Contenu</th>
+                        <th>Auteur</th>
+                        <th>Message</th>
+                        <th>Date</th>
+                        <th class="text-end">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                {% for c in comments %}
+                    <tr>
+                        <td>{{ c.id }}</td>
+                        <td style="max-width: 420px;">
+                            {{ c.content|length > 120 ? c.content|slice(0, 120) ~ '…' : c.content }}
+                        </td>
+                        <td>
+                            {% set a = c.author ?? null %}
+                            {{ a ? (a.username ?? a.email ?? 'Anonyme') : 'Anonyme' }}
+                        </td>
+                        <td>
+                            {% if c.message %}
+                                Message #{{ c.message.id }}
+                                {# Ajuster le nom de route si besoin: app_message_show #}
+                                {# <a href="{{ path('app_message_show', {id: c.message.id}) }}">ouvrir</a> #}
+                            {% else %}
+                                -
+                            {% endif %}
+                        </td>
+                        <td>{{ c.createdAt ? c.createdAt|date('d/m/Y H:i') : '' }}</td>
+                        <td class="text-end">
+                            <form method="post"
+                                  action="{{ path('app_comment_delete', { id: c.id }) }}"
+                                  onsubmit="return confirm('Supprimer ce commentaire ?');"
+                                  class="d-inline-block">
+                                <input type="hidden" name="_token" value="{{ csrf_token('delete_comment_' ~ c.id) }}">
+                                <button class="btn btn-sm btn-outline-danger">Supprimer</button>
+                            </form>
+                        </td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% endif %}
+
+    <a href="{{ path('app_home') }}" class="btn btn-link">← Retour</a>
+</div>
+{% endblock %}

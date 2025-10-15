@@ -41,7 +41,7 @@ class UserFixtures extends Fixture
         // User 3 - ROLE_ADMIN
         $admin = new User();
         $admin->setEmail('admin@example.com');
-        $admin->setRoles(['ROLE_ADMIN']);
+        $admin->setRoles(['ROLE_AUTHOR', 'ROLE_ADMIN']);
         $admin->setUsername('admin');
         $admin->setPassword(
             $this->passwordHasher->hashPassword($admin, 'adminpass')
