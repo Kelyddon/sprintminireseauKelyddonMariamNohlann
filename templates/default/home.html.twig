@@ -6,21 +6,39 @@
 <div class="container mt-4">
     <h1 class="mb-4">Tous les messages</h1>
 
+    {# ✅ Messages flash #}
+    {% for label, messages_flash in app.flashes %}
+        {% for message_flash in messages_flash %}
+            <div class="alert alert-{{ label }}">{{ message_flash }}</div>
+        {% endfor %}
+    {% endfor %}
+
     {% if messages is empty %}
         <p>Aucun message pour le moment.</p>
     {% else %}
         <div class="list-group">
             {% for m in messages %}
                 <div class="list-group-item">
-                    <div class="d-flex justify-content-between">
-                        <strong>{{ m.author.username ?? m.author.email ?? 'Anonyme' }}</strong>
-                        <small class="text-muted">
-                            {{ m.createdAt ? m.createdAt|date('d/m/Y H:i') : '' }}
-                        </small>
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <strong>{{ m.author.username ?? m.author.email ?? 'Anonyme' }}</strong><br>
+                            <small class="text-muted">
+                                {{ m.createdAt ? m.createdAt|date('d/m/Y H:i') : '' }}
+                            </small>
+                        </div>
+
+                        {# ✅ Bouton Supprimer si auteur ou admin #}
+                        {% if app.user and (is_granted('ROLE_ADMIN') or app.user == m.author) %}
+                            <form method="post" action="{{ path('app_message_delete', {id: m.id}) }}" onsubmit="return confirm('Supprimer ce message ?');">
+                                <button class="btn btn-danger btn-sm">Supprimer</button>
+                            </form>
+                        {% endif %}
                     </div>
+
                     <div class="mt-2">
                         {{ m.content }}
                     </div>
+
                     <div class="mt-2">
                         <a class="btn btn-sm btn-outline-primary" href="{{ path('app_message_show', { id: m.id }) }}">
                             Voir
