@@ -6,7 +6,6 @@
 <div class="container mt-4">
     <h1 class="mb-4">Tous les messages</h1>
 
-    {# ✅ Messages flash #}
     {% for label, messages_flash in app.flashes %}
         {% for message_flash in messages_flash %}
             <div class="alert alert-{{ label }}">{{ message_flash }}</div>
@@ -27,12 +26,19 @@
                             </small>
                         </div>
 
-                        {# ✅ Bouton Supprimer si auteur ou admin #}
-                        {% if app.user and (is_granted('ROLE_ADMIN') or app.user == m.author) %}
-                            <form method="post" action="{{ path('app_message_delete', {id: m.id}) }}" onsubmit="return confirm('Supprimer ce message ?');">
-                                <button class="btn btn-danger btn-sm">Supprimer</button>
-                            </form>
-                        {% endif %}
+                        <div class="d-flex gap-2">
+                            {# ✅ Bouton Modifier visible seulement pour l’auteur #}
+                            {% if app.user and app.user == m.author %}
+                                <a href="{{ path('app_message_edit', { id: m.id }) }}" class="btn btn-warning btn-sm">Modifier</a>
+                            {% endif %}
+
+                            {# ✅ Bouton Supprimer visible pour auteur ou admin #}
+                            {% if app.user and (is_granted('ROLE_ADMIN') or app.user == m.author) %}
+                                <form method="post" action="{{ path('app_message_delete', {id: m.id}) }}" onsubmit="return confirm('Supprimer ce message ?');">
+                                    <button class="btn btn-danger btn-sm">Supprimer</button>
+                                </form>
+                            {% endif %}
+                        </div>
                     </div>
 
                     <div class="mt-2">

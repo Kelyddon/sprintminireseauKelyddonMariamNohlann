@@ -45,4 +45,32 @@ class MessageController extends AbstractController
             'message' => $message,
         ]);
     }
+
+    #[Route('/message/{id}/edit', name: 'app_message_edit')]
+    #[IsGranted('IS_AUTHENTICATED_FULLY')]
+    public function edit(Message $message, Request $request, EntityManagerInterface $em): Response
+    {
+        $user = $this->getUser();
+
+        // ✅ Vérifie que l'utilisateur connecté est l'auteur
+        if ($message->getAuthor() !== $user) {
+            $this->addFlash('error', 'Vous ne pouvez modifier que vos propres messages.');
+            return $this->redirectToRoute('app_home');
+        }
+
+        // On utilise le même formulaire que pour la création
+        $form = $this->createForm(\App\Form\MessageFormType::class, $message);
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            $em->flush(); // pas besoin de persist, l'objet existe déjà
+            $this->addFlash('success', 'Message modifié avec succès.');
+            return $this->redirectToRoute('app_home');
+        }
+
+        return $this->render('message/edit.html.twig', [
+            'form' => $form->createView(),
+            'message' => $message,
+        ]);
+    }
 }
