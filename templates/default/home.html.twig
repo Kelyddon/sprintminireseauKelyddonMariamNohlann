@@ -13,13 +13,18 @@
             {% for m in messages %}
                 <div class="list-group-item">
                     <div class="d-flex justify-content-between">
-                        <strong>{{ m.user.username ?? m.user.email ?? 'Anonyme' }}</strong>
+                        <strong>{{ m.author.username ?? m.author.email ?? 'Anonyme' }}</strong>
                         <small class="text-muted">
                             {{ m.createdAt ? m.createdAt|date('d/m/Y H:i') : '' }}
                         </small>
                     </div>
                     <div class="mt-2">
                         {{ m.content }}
+                    </div>
+                    <div class="mt-2">
+                        <a class="btn btn-sm btn-outline-primary" href="{{ path('app_message_show', { id: m.id }) }}">
+                            Voir
+                        </a>
                     </div>
                 </div>
             {% endfor %}

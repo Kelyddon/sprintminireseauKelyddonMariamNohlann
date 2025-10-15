@@ -1,0 +1,33 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Message #{{ message.id }}{% endblock %}
+
+{% block body %}
+<div class="container mt-4" style="max-width:720px;">
+    <div class="card">
+        <div class="card-body">
+            <div class="d-flex justify-content-between mb-2">
+                <strong>
+                    {% set author = message.author ?? message.user ?? null %}
+                    {{ author ? (author.username ?? author.email ?? 'Anonyme') : 'Anonyme' }}
+                </strong>
+                <small class="text-muted">
+                    {% if message.createdAt is defined and message.createdAt %}
+                        {{ message.createdAt|date('d/m/Y H:i') }}
+                    {% endif %}
+                </small>
+            </div>
+            <p class="mb-0">{{ message.content }}</p>
+
+            {% if message.image is defined and message.image %}
+                <hr>
+                <img src="{{ asset(message.image) }}" class="img-fluid" alt="image du message">
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="mt-3">
+        <a href="{{ path('app_home') }}" class="btn btn-link">← Retour</a>
+    </div>
+</div>
+{% endblock %}
