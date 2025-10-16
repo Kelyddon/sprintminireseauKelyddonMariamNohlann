@@ -1,37 +1,60 @@
 {% if is_granted('IS_AUTHENTICATED_REMEMBERED') %}
-<nav class="navbar navbar-expand-lg navbar-light bg-light mb-4">
-  <div class="container">
-    <a class="navbar-brand" href="{{ path('app_home') }}">MiniRéseau</a>
+<nav class="mb-6 border-b border-slate-200 bg-white/80 backdrop-blur dark:border-slate-800 dark:bg-slate-900/70">
+  <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+    <div class="flex h-14 items-center justify-between">
+      <a class="font-semibold text-slate-800 hover:text-primary dark:text-slate-100" href="{{ path('app_home') }}">
+        MiniRéseau
+      </a>
 
-    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNavbar" aria-controls="mainNavbar" aria-expanded="false" aria-label="Toggle navigation">
-      <span class="navbar-toggler-icon"></span>
-    </button>
+      <button id="menu-toggle"
+              class="inline-flex items-center justify-center rounded-md p-2 text-slate-600 hover:bg-slate-100 hover:text-slate-900 dark:text-slate-300 dark:hover:bg-slate-800 dark:hover:text-white lg:hidden"
+              aria-controls="mainNavbar" aria-expanded="false" aria-label="Toggle navigation">
+        <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M4 6h16M4 12h16M4 18h16" />
+        </svg>
+      </button>
 
-    <div class="collapse navbar-collapse" id="mainNavbar">
-      <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-        <li class="nav-item"><a class="nav-link" href="{{ path('app_home') }}">Accueil</a></li>
-        <li class="nav-item">
-          <a class="btn btn-sm btn-primary ms-lg-2" href="{{ path('app_message_add') }}">Créer un message</a>
-        </li>
-        {% if is_granted('ROLE_ADMIN') %}
-          <li class="nav-item">
-            <a class="nav-link" href="{{ path('admin_comments_index') }}">Commentaires (Admin)</a>
+      <div id="mainNavbar" class="hidden w-full grow items-center justify-between gap-4 lg:flex">
+        <ul class="mt-3 flex flex-col gap-2 lg:mt-0 lg:flex-row lg:items-center">
+          <li><a class="px-3 py-2 text-slate-700 hover:text-primary dark:text-slate-200" href="{{ path('app_home') }}">Accueil</a></li>
+          <li>
+            <a class="inline-flex items-center rounded-md bg-black px-3 py-2 text-sm font-medium text-white hover:bg-indigo-600"
+               href="{{ path('app_message_add') }}">Créer un message</a>
           </li>
-          <li class="nav-item">
-            <a class="nav-link" href="{{ path('admin_users_index') }}">Utilisateurs (Admin)</a>
-          </li>
-        {% endif %}
-      </ul>
+          {% if is_granted('ROLE_ADMIN') %}
+            <li><a class="px-3 py-2 text-slate-700 hover:text-primary dark:text-slate-200" href="{{ path('admin_comments_index') }}">Commentaires (Admin)</a></li>
+            <li><a class="px-3 py-2 text-slate-700 hover:text-primary dark:text-slate-200" href="{{ path('admin_users_index') }}">Utilisateurs (Admin)</a></li>
+          {% endif %}
+        </ul>
 
-      <ul class="navbar-nav ms-auto">
-        <li class="nav-item me-2 align-self-center">
-          <span class="text-muted small">{{ app.user.username ?? app.user.email }}</span>
-        </li>
-        <li class="nav-item">
-          <a class="btn btn-outline-secondary btn-sm" href="{{ path('app_logout') }}">Se déconnecter</a>
-        </li>
-      </ul>
-    </div>
+        <ul class="flex items-center gap-3">
+      <li class="hidden sm:block">
+        <span class="text-xs text-slate-500 dark:text-slate-400">{{ app.user.username ?? app.user.email }}</span>
+      </li>
+      <li>
+        <a class="inline-flex items-center rounded-md border border-slate-300 px-3 py-1.5 text-sm text-slate-700 hover:bg-slate-100 dark:border-slate-700 dark:text-slate-200 dark:hover:bg-slate-800"
+           href="{{ path('app_logout') }}">Se déconnecter</a>
+      </li>
+    </ul>
   </div>
+
+  <script>
+    (function(){
+      const btn = document.getElementById('menu-toggle');
+      const nav = document.getElementById('mainNavbar');
+      if (btn && nav) {
+        btn.addEventListener('click', () => nav.classList.toggle('hidden'));
+      }
+
+      const darkBtn = document.getElementById('dark-toggle');
+      if (darkBtn) {
+        darkBtn.addEventListener('click', () => {
+          const isDark = document.documentElement.classList.toggle('dark');
+          localStorage.setItem('theme', isDark ? 'dark' : 'light');
+        });
+      }
+    })();
+  </script>
 </nav>
 {% endif %}

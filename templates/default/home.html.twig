@@ -1,66 +1,82 @@
 {% extends 'base.html.twig' %}
-
+ 
 {% block title %}Accueil{% endblock %}
-
+ 
 {% block body %}
-<div class="container mt-4">
-    <h1 class="mb-4">Tous les messages</h1>
-
-    {% for label, messages_flash in app.flashes %}
-        {% for message_flash in messages_flash %}
-            <div class="alert alert-{{ label }}">{{ message_flash }}</div>
-        {% endfor %}
-    {% endfor %}
-
-    {% if messages is empty %}
-        <p>Aucun message pour le moment.</p>
-    {% else %}
-        <div class="list-group">
-            {% for m in messages %}
-                <div class="list-group-item">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <div>
-                            <strong>{{ m.author.username ?? m.author.email ?? 'Anonyme' }}</strong><br>
-                            <small class="text-muted">
-                                {{ m.createdAt ? m.createdAt|date('d/m/Y H:i') : '' }}
-                            </small>
-                        </div>
-
-                        <div class="d-flex gap-2">
-                            {# ✅ Bouton Modifier visible seulement pour l’auteur #}
-                            {% if app.user and app.user == m.author %}
-                                <a href="{{ path('app_message_edit', { id: m.id }) }}" class="btn btn-warning btn-sm">Modifier</a>
-                            {% endif %}
-
-                            {# ✅ Bouton Supprimer visible pour auteur ou admin #}
-                            {% if app.user and (is_granted('ROLE_ADMIN') or app.user == m.author) %}
-                                <form method="post" action="{{ path('app_message_delete', {id: m.id}) }}" onsubmit="return confirm('Supprimer ce message ?');">
-                                    <button class="btn btn-danger btn-sm">Supprimer</button>
-                                </form>
-                            {% endif %}
-                        </div>
-                    </div>
-
-                    <div class="mt-2">
-                        {{ m.content }}
-                    </div>
-
-                    {% if m.image %}
-                        <div class="mt-3">
-                            <img src="{{ asset('uploads/messages/' ~ m.image) }}" alt="Image du message"
-                                class="img-fluid rounded shadow-sm" style="max-height:250px;">
-                        </div>
-                    {% endif %}
-
-
-                    <div class="mt-2">
-                        <a class="btn btn-sm btn-outline-primary" href="{{ path('app_message_show', { id: m.id }) }}">
-                            Voir
-                        </a>
-                    </div>
+<div class="max-w-7xl mx-auto mt-12 px-4 sm:px-6 lg:px-8">
+    <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg overflow-hidden">
+        <div class="p-8 border-b border-gray-200 dark:border-gray-700">
+            <h1 class="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-8 flex items-center gap-2">
+                <i class="fas fa-home"></i> Tous les messages
+            </h1>
+            {% include 'partials/_alert.html.twig' %}
+            {% if messages is empty %}
+                <div class="flex flex-col items-center justify-center py-12 text-gray-500 dark:text-gray-400">
+                    <i class="fas fa-inbox text-4xl mb-4"></i>
+                    <p>Aucun message pour le moment.</p>
                 </div>
-            {% endfor %}
+            {% else %}
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                    {% for m in messages %}
+                        <div class="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl shadow-md flex flex-col h-full transition-colors duration-300 overflow-hidden">
+                            <div class="flex items-center gap-3 p-4 border-b border-gray-100 dark:border-gray-800">
+                                <div class="w-10 h-10 bg-gradient-to-br from-purple-500 to-pink-500 rounded-full flex items-center justify-center text-white font-bold">
+                                    {{ (m.author.username ?? m.author.email ?? 'A')|slice(0, 1)|upper }}
+                                </div>
+                                <div class="flex-1 min-w-0">
+                                    <div class="font-semibold text-gray-900 dark:text-gray-100 truncate">
+                                        {{ m.author.username ?? m.author.email ?? 'Anonyme' }}
+                                    </div>
+                                    <div class="text-xs text-gray-500 dark:text-gray-400">
+                                        {{ m.createdAt ? m.createdAt|date('d/m/Y H:i') : '' }}
+                                    </div>
+                                </div>
+                                <div class="flex gap-2">
+                                    {% if app.user and app.user == m.author %}
+                                        <a href="{{ path('app_message_edit', { id: m.id }) }}" class="text-gray-400 hover:text-yellow-400 transition-colors p-1">
+                                            <i class="fas fa-edit"></i>
+                                        </a>
+                                    {% endif %}
+                                    {% if app.user and (is_granted('ROLE_ADMIN') or app.user == m.author) %}
+                                        <form method="post" action="{{ path('app_message_delete', {id: m.id}) }}" onsubmit="return confirm('Supprimer ce message ?');" class="inline-block">
+                                            <button type="submit" class="text-gray-400 hover:text-red-500 transition-colors p-1">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                        </form>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            {% if m.image %}
+                                <div class="relative pt-[75%] bg-gray-100 dark:bg-gray-800">
+                                    <img src="{{ asset('uploads/messages/' ~ m.image) }}" alt="Image du message" class="absolute inset-0 w-full h-full object-cover rounded-b-xl shadow-sm">
+                                </div>
+                            {% endif %}
+                            <div class="flex-1 flex flex-col p-4">
+                                <p class="text-gray-700 dark:text-gray-200 text-sm mb-4 line-clamp-3 flex-1">
+                                    {{ m.content }}
+                                </p>
+                                <div class="flex justify-between items-center pt-3 border-t border-gray-200 dark:border-gray-700 mt-auto">
+                                    <a href="{{ path('app_message_show', { id: m.id }) }}" class="text-primary-600 hover:text-primary-700 text-sm font-medium transition-colors inline-flex items-center gap-1">
+                                        <span>Voir plus</span>
+                                        <i class="fas fa-chevron-right text-xs"></i>
+                                    </a>
+                                    <div class="flex items-center gap-3 text-gray-500 dark:text-gray-400">
+                                        <button class="hover:text-primary-600 transition-colors">
+                                            <i class="far fa-heart"></i>
+                                            <span class="text-xs ml-1">0</span>
+                                        </button>
+                                        <button class="hover:text-primary-600 transition-colors">
+                                            <i class="far fa-comment"></i>
+                                            <span class="text-xs ml-1">0</span>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endif %}
         </div>
-    {% endif %}
+    </div>
 </div>
 {% endblock %}

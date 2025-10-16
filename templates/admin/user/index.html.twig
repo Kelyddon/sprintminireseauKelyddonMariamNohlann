@@ -1,63 +1,85 @@
 {% extends 'base.html.twig' %}
-
+ 
 {% block title %}Administration - Utilisateurs{% endblock %}
-
+ 
 {% block body %}
-<div class="container mt-4">
-  <h1 class="mb-3">Gestion des utilisateurs</h1>
-
-  <div class="table-responsive">
-    <table class="table align-middle">
-      <thead>
-        <tr>
-          <th>#</th>
-          <th>Email</th>
-          <th>Nom d’utilisateur</th>
-          <th>Rôles</th>
-          <th class="text-end">Actions</th>
-        </tr>
-      </thead>
-      <tbody>
-      {% for u in users %}
-        <tr>
-          <td>{{ u.id }}</td>
-          <td>{{ u.email }}</td>
-          <td>{{ u.username ?? '-' }}</td>
-          <td>
-            <form method="post" action="{{ path('admin_users_update_roles', { id: u.id }) }}" class="d-flex gap-3 align-items-center">
-              <div class="form-check">
-                <input class="form-check-input" type="checkbox" id="role_author_{{ u.id }}" name="roles[]" value="ROLE_AUTHOR"
-                       {{ 'ROLE_AUTHOR' in u.roles ? 'checked' : '' }} disabled>
-                <label class="form-check-label" for="role_author_{{ u.id }}">ROLE_AUTHOR</label>
-              </div>
-              <div class="form-check">
-                <input class="form-check-input" type="checkbox" id="role_admin_{{ u.id }}" name="roles[]" value="ROLE_ADMIN"
-                       {{ 'ROLE_ADMIN' in u.roles ? 'checked' : '' }}>
-                <label class="form-check-label" for="role_admin_{{ u.id }}">ROLE_ADMIN</label>
-              </div>
-              {# garantir ROLE_AUTHOR dans le POST (même si case désactivée) #}
-              <input type="hidden" name="roles[]" value="ROLE_AUTHOR">
-              <input type="hidden" name="_token" value="{{ csrf_token('update_user_roles_' ~ u.id) }}">
-              <button class="btn btn-sm btn-outline-primary">Enregistrer</button>
-            </form>
-          </td>
-          <td class="text-end">
-            <form method="post"
-                  action="{{ path('admin_users_delete', { id: u.id }) }}"
-                  onsubmit="return confirm('Supprimer cet utilisateur ?');"
-                  class="d-inline-block">
-              <input type="hidden" name="_token" value="{{ csrf_token('delete_user_' ~ u.id) }}">
-              <button class="btn btn-sm btn-outline-danger">Supprimer</button>
-            </form>
-          </td>
-        </tr>
-      {% else %}
-        <tr><td colspan="5" class="text-muted">Aucun utilisateur.</td></tr>
-      {% endfor %}
-      </tbody>
-    </table>
-  </div>
-
-  <a href="{{ path('app_home') }}" class="btn btn-link">← Retour</a>
+<div class="max-w-7xl mx-auto mt-12 px-4 sm:px-6 lg:px-8">
+    <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg overflow-hidden">
+        <div class="p-8 border-b border-gray-200 dark:border-gray-700">
+            <div class="flex items-center justify-between mb-6">
+                <h1 class="text-2xl font-bold text-gray-900 dark:text-gray-100">
+                    <i class="fas fa-users mr-2"></i>Gestion des utilisateurs
+                </h1>
+                <span class="px-4 py-2 bg-primary-600/10 text-primary-600 dark:text-primary-400 rounded-full text-sm font-medium">
+                    {{ users|length }} utilisateur(s)
+                </span>
+            </div>
+            <div class="overflow-x-auto">
+                <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+                    <thead>
+                        <tr class="bg-gray-50 dark:bg-gray-700/50">
+                            <th class="px-6 py-4 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">#</th>
+                            <th class="px-6 py-4 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Email</th>
+                            <th class="px-6 py-4 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Nom d’utilisateur</th>
+                            <th class="px-6 py-4 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Rôles</th>
+                            <th class="px-6 py-4 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+                        {% for u in users %}
+                            <tr class="hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors duration-200">
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-gray-100">{{ u.id }}</td>
+                                <td class="px-6 py-4 text-gray-900 dark:text-gray-100">{{ u.email }}</td>
+                                <td class="px-6 py-4 text-gray-900 dark:text-gray-100">{{ u.username ?? '-' }}</td>
+                                <td class="px-6 py-4">
+                                    <form method="post" action="{{ path('admin_users_update_roles', { id: u.id }) }}" class="flex flex-wrap gap-3 items-center">
+                                        <label class="flex items-center space-x-2">
+                                            <input type="checkbox" class="form-checkbox h-4 w-4 text-primary-600 border-gray-300 rounded" disabled
+                                                   {{ 'ROLE_AUTHOR' in u.roles ? 'checked' : '' }}>
+                                            <span class="text-gray-700 dark:text-gray-200 text-sm">ROLE_AUTHOR</span>
+                                        </label>
+                                        <label class="flex items-center space-x-2">
+                                            <input type="checkbox" class="form-checkbox h-4 w-4 text-primary-600 border-gray-300 rounded"
+                                                   name="roles[]" value="ROLE_ADMIN"
+                                                   {{ 'ROLE_ADMIN' in u.roles ? 'checked' : '' }}>
+                                            <span class="text-gray-700 dark:text-gray-200 text-sm">ROLE_ADMIN</span>
+                                        </label>
+                                        <input type="hidden" name="roles[]" value="ROLE_AUTHOR">
+                                        <input type="hidden" name="_token" value="{{ csrf_token('update_user_roles_' ~ u.id) }}">
+                                        <button class="bg-primary-600 hover:bg-primary-700 text-white text-sm px-3 py-1 rounded transition-colors duration-200 flex items-center gap-2">
+                                            <i class="fas fa-save"></i>
+                                            Enregistrer
+                                        </button>
+                                    </form>
+                                </td>
+                                <td class="px-6 py-4 text-right">
+                                    <form method="post"
+                                          action="{{ path('admin_users_delete', { id: u.id }) }}"
+                                          onsubmit="return confirm('Supprimer cet utilisateur ?');"
+                                          class="inline-block">
+                                        <input type="hidden" name="_token" value="{{ csrf_token('delete_user_' ~ u.id) }}">
+                                        <button class="bg-red-500 hover:bg-red-600 text-white text-sm px-3 py-1 rounded transition-colors duration-200 flex items-center gap-2">
+                                            <i class="fas fa-trash"></i>
+                                            Supprimer
+                                        </button>
+                                    </form>
+                                </td>
+                            </tr>
+                        {% else %}
+                            <tr>
+                                <td colspan="5" class="px-6 py-4 text-gray-500 dark:text-gray-300 text-center">Aucun utilisateur.</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div class="px-8 py-4 bg-gray-50 dark:bg-gray-700/50 border-t border-gray-200 dark:border-gray-700">
+            <a href="{{ path('app_home') }}" class="inline-flex items-center text-sm font-medium text-gray-600 dark:text-gray-400 hover:text-primary-600 dark:hover:text-primary-400 transition-colors duration-200">
+                <i class="fas fa-arrow-left mr-2"></i>
+                Retour à l'accueil
+            </a>
+        </div>
+    </div>
 </div>
 {% endblock %}
